@@ -1,0 +1,7 @@
+Working with Dan Briotta at the Clifford Ford Observatory for the Ithaca College Deptartment of
+Physics and Astronomy, I wrote programs to automate the process of capturing astronomical images, 
+reducing them with image manipulation, and running photometry and other forms of analysis on these 
+images. I also helped characterize the rate of Dark Current production in the ST-10XE CCD camera 
+used at the observatory as well. I was professor Briotta’s research assistant for all four years 
+of my undergraduate experience. Our first project was to restructure the Department’s Nuclear 
+Counter experiment to be run with a python script from a terminal window. 
