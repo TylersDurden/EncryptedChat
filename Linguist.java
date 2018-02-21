@@ -1,3 +1,4 @@
+
 import java.util.*;
 import java.io.*;
 import java.nio.file.*;
@@ -6,11 +7,15 @@ public class Linguist implements Runnable {
 
     public static final float                 start        = System.currentTimeMillis();
 
-    public static final String[]              specialChars = {"!", "#", "$", "%", "&", "'", "(", ")", "*", "+", ",", "-", ".", "/", ":",
-            ";", "<", "=", ">", "?", "@", "~", "`", "{", "}"};
+    public static final String[]              specialChars = {"!", "#", "$", "%", "&", "'", "(", ")", 
+                                                              "*", "+", ",", "-", ".", "/", ":", ";", 
+                                                              "<", "=", ">", "?", "@", "~", "`", "{", "}","["};
 
-    public static final String[]              letters      = {"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o",
-            "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"};
+    public static final String[]              letters      = {"a", "b", "c", "d", "e", "f", "g", "h",
+                                                              "i", "j", "k", "l", "m", "n", "o", "p", 
+                                                              "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"};
+                                                               
+    public static final int []                numbers     = {0,1,2,3,4,5,6,7,8,9}; 
 
     public static Vector<String>              uppers       = new Vector<>();
     public static Vector<String>              lowers       = new Vector<>();
@@ -43,6 +48,7 @@ public class Linguist implements Runnable {
     public static Vector<String>              zwords       = new Vector<>();
     public static Map<String, Vector<String>> dictionary   = new HashMap<>();
     public static Vector<String>              query        = new Vector<String>();
+    public static Vector<String>              knownWords   = new Vector<>();
 
     /** <Be_Cunning> */
     public Linguist() {
@@ -124,30 +130,14 @@ public class Linguist implements Runnable {
             }
             br.close();
             //Fill the Linguist WORDBANK 
-            if (wordlist.split(" ")[0].compareTo("A") == 0) {
-                Linguist.awords = digest;
-            }
-            if (wordlist.split(" ")[0].compareTo("B") == 0) {
-                Linguist.bwords = digest;
-            }
-            if (wordlist.split(" ")[0].compareTo("C") == 0) {
-                Linguist.cwords = digest;
-            }
-            if (wordlist.split(" ")[0].compareTo("D") == 0) {
-                Linguist.dwords = digest;
-            }
-            if (wordlist.split(" ")[0].compareTo("E") == 0) {
-                Linguist.ewords = digest;
-            }
-            if (wordlist.split(" ")[0].compareTo("F") == 0) {
-                Linguist.fwords = digest;
-            }
-            if (wordlist.split(" ")[0].compareTo("G") == 0) {
-                Linguist.gwords = digest;
-            }
-            if (wordlist.split(" ")[0].compareTo("H") == 0) {
-                Linguist.hwords = digest;
-            }
+            if (wordlist.split(" ")[0].compareTo("A") == 0) {Linguist.awords = digest;}
+            if (wordlist.split(" ")[0].compareTo("B") == 0) {Linguist.bwords = digest;}
+            if (wordlist.split(" ")[0].compareTo("C") == 0) {Linguist.cwords = digest;}
+            if (wordlist.split(" ")[0].compareTo("D") == 0) {Linguist.dwords = digest;}
+            if (wordlist.split(" ")[0].compareTo("E") == 0) {Linguist.ewords = digest;}
+            if (wordlist.split(" ")[0].compareTo("F") == 0) {Linguist.fwords = digest;}
+            if (wordlist.split(" ")[0].compareTo("G") == 0) {Linguist.gwords = digest;}
+            if (wordlist.split(" ")[0].compareTo("H") == 0) {Linguist.hwords = digest;}
             if (wordlist.split(" ")[0].compareTo("I") == 0) {
                 Linguist.iwords = digest;
             }
@@ -224,18 +214,28 @@ public class Linguist implements Runnable {
                 run();
             } else {
                 System.out.println("{DEBUG MODE}");
+                //Grab word objects from a text file 
                 analyzeTextFile("/projects/Data/src", "example.txt");
                 Vector<String> w3rds = inspectTextFile(Linguist.query);
+                // Isolate Words of Interest
                 Interpreter.words = w3rds;
+                // Classify Known words (if any)
+                WordClassifier intel = new WordClassifier(Linguist.knownWords,true);
+                // Unknown word objects get handled seperately. 
                 Vector <String> unidentifiedWordObjects = processQuery();
-                
+                //Classify words (if possible), false because they aren't known words
+                WordClassifier wcUWO = new WordClassifier(unidentifiedWordObjects,false);
+                //
+                System.out.println(unidentifiedWordObjects.toString());
+                //
                 Linguist.deepRead();
                 
                 
             }
 
         }
-
+        
+        /** <HANDLE_RAW_TEXT>*/
         Vector<String> processQuery() {
             System.out.println("Trying to analyze " + Interpreter.words.size() + " words.");
             Vector<String> wordsfound = new Vector<>();
@@ -251,6 +251,8 @@ public class Linguist implements Runnable {
                 }
 
             }
+            
+            Linguist.knownWords = wordsfound;
             if (wordsfound.size() != words.size()) {
                 for (String unknown : newWords) {
                     String key = unknown.split("")[0].toUpperCase();
@@ -259,10 +261,8 @@ public class Linguist implements Runnable {
                     } catch (NullPointerException e) {
                     }
                 }
-                System.out.println("Identified "+words.size()+" known words in text.");
+                System.out.println("Identified "+knownWords.size()+" known words in text.");
                 System.out.println("Found " + newWords.size() + " new words to Analyze.");
-                /** TODO: 
-                Analyze whether the new words are typos, actual new words or nonsense/Crypto */
                 
             }
             return newWords;
@@ -275,10 +275,8 @@ public class Linguist implements Runnable {
             //set initial boolean to false
             boolean isWord = false;
             if (Linguist.uppers.contains(let.toUpperCase())) {
-                //System.out.println("Checking " + let.toUpperCase() + " words for " + word);
                 for (String opt : Linguist.dictionary.get(let.toUpperCase())) {
                     if (word.toLowerCase().compareTo(opt) == 0) {
-                        //System.out.println("Found: " + opt);
                         isWord = true;
                     }
                 }
