@@ -27,6 +27,7 @@ public class Messenger {
                 break;
             case "-R":
                 System.out.println("Receiving a Message");
+                new Reader("user");
                 break;
 
         }
@@ -119,13 +120,6 @@ public class Messenger {
 
 
     }
-
-    private static class Reader {
-        public Reader() {
-
-        }
-
-    }
     
     private static class ServeMessage{
         
@@ -154,7 +148,7 @@ public class Messenger {
         /** <Create_[PACKETS]> */
         void createPacketData(){
             for(String chunk : content){
-                packets.add(chunk.getBytes());
+                packets.add((chunk+" ").getBytes());
             }
         }
         
@@ -180,5 +174,49 @@ public class Messenger {
         
     }
 
+    private static class Reader implements Runnable {
+        
+        private Vector<String> encryptedAnswers = new Vector<>();
+        private Vector<String> decryptedMessages = new Vector<>();
+        private boolean reading;
+        private String userName;
+        private String senderName;
+        private ServerSocket srvsocket;
+        
+        public Reader(String uname) {
+            
+            try{srvsocket = new ServerSocket(6789);}
+            catch(IOException e){}
+            
+            userName = uname;
+            reading = true;
+            run();
+
+        }
+        
+        public void run() {
+            
+            
+            while(reading){
+                try{
+                    Socket tmpsock = srvsocket.accept();
+                    senderName = tmpsock.getInetAddress().toString();
+                    BufferedReader in = new BufferedReader(new InputStreamReader(tmpsock.getInputStream()));
+                    DataOutputStream dos = new DataOutputStream(tmpsock.getOutputStream());
+                    String response = in.readLine();
+                    for(String word : response.split(" ")){encryptedAnswers.add(word);}
+                    System.out.println(encryptedAnswers.size()+" encrypted Answers Recieved from ");
+                    int SEQ = 0;
+                    for(String encw : encryptedAnswers){SEQ++;System.out.println("["+SEQ+"]"+encw);}
+                    Brutus br =  new Brutus(encryptedAnswers);
+                    br.run();
+                    }
+                catch(IOException e){}
+            }
+            
+            
+        }
+
+    }
 
 }

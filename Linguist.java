@@ -52,16 +52,9 @@ public class Linguist implements Runnable {
 
     /** <Be_Cunning> */
     public Linguist() {
-        System.out.println("___________________________________");
+        System.out.println("\n___________________________________");
         System.out.println("|/ / / /{LINGUIST_CREATED} \\ \\ \\ \\|");
-        System.out.println("|--------- Description -----------|");
-        System.out.println("|Two types of requests can be made|");
-        System.out.println("|1] Cryptanalsis of .txt file or  |");
-        System.out.println("|text from user input.            |");
-        System.out.println("|2]Give txt file or user input for|");
-        System.out.println("|Sentiment Analysis/Interpretation|");
-        System.out.println("|_________________________________|");
-
+        System.out.println("___________________________________");
         run();
 
         System.out.println("Finished in " + stopTimer() + " seconds");
