@@ -1,7 +1,9 @@
-
 import java.util.*;
 import java.io.*;
+import java.net.*;
+import java.security.*;
 import java.nio.file.*;
+import java.nio.charset.StandardCharsets;
 
 public class Linguist implements Runnable {
 
@@ -49,15 +51,16 @@ public class Linguist implements Runnable {
     public static Map<String, Vector<String>> dictionary   = new HashMap<>();
     public static Vector<String>              query        = new Vector<String>();
     public static Vector<String>              knownWords   = new Vector<>();
-
+    
+    public static Map<String,Vector<String>> hashdict = new HashMap<>();
+    
     /** <Be_Cunning> */
     public Linguist() {
         System.out.println("\n___________________________________");
         System.out.println("|/ / / /{LINGUIST_CREATED} \\ \\ \\ \\|");
         System.out.println("___________________________________");
         run();
-
-        System.out.println("Finished in " + stopTimer() + " seconds");
+        //System.out.println("Finished in " + stopTimer() + " seconds");
     }
 
 
@@ -103,16 +106,44 @@ public class Linguist implements Runnable {
         Linguist.dictionary.put("X", digestWordList("X Words.csv"));
         Linguist.dictionary.put("Y", digestWordList("Y Words.csv"));
         Linguist.dictionary.put("Z", digestWordList("Z Words.csv"));
-        System.out.println("Dictionary Initialized");
+        System.out.println("Dictionaries Initialized");
 
         for (String let : letters) {
             uppers.add(let.toUpperCase());
         }
+        
+        encryptDictionary();
 
     }
+    
+    private static String bytesToHex(byte[] hash) {
+            StringBuffer hString = new StringBuffer();
+            for (int i = 0; i < hash.length; i++) {
+                String hex = Integer.toHexString(0xff & hash[i]);
+                if (hString.length() == 1)
+                    hString.append('0');
+                hString.append(hex);
+            }
+            return hString.toString();
+        }
+        
+        void encryptDictionary(){
+            for(String letter : letters){
+            Vector<String> cryptdic = new Vector<>();
+            for(String word : Linguist.dictionary.get(letter.toUpperCase())){
+                try{
+                    MessageDigest md = MessageDigest.getInstance("SHA-256");
+                    Vector <byte[]> bs = new Vector<>();
+                    cryptdic.add(bytesToHex(md.digest(word.getBytes(StandardCharsets.UTF_8))));
+                }catch(NoSuchAlgorithmException e){e.printStackTrace();}
+                
+            }
+            Linguist.hashdict.put(letter.toUpperCase(),cryptdic);
+        }
+        }
 
     Vector<String> digestWordList(String wordlist) {
-        File wordrepo = Paths.get("/projects/Data/src/Vocabulary/Words/EOWL-v1.1.2/CSV Format", wordlist).toFile();
+        File wordrepo = Paths.get("/projects/Data/EncryptedChat-v0.1/src/Vocabulary/Words/EOWL-v1.1.2/CSV Format", wordlist).toFile();
         Vector<String> digest = new Vector<>();
         BufferedReader br = null;
         String line;
@@ -189,6 +220,8 @@ public class Linguist implements Runnable {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        
+        
         return digest;
     }
 
@@ -227,6 +260,8 @@ public class Linguist implements Runnable {
             }
 
         }
+        
+        
         
         /** <HANDLE_RAW_TEXT>*/
         Vector<String> processQuery() {

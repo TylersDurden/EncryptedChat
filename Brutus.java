@@ -23,9 +23,9 @@ public class Brutus implements Runnable{
         //
         Brutus.lang =  new Linguist();
         // Now run it
-        System.out.println(" --  Decrypting Message  -- ");
+        System.out.println(" --  Decrypting Message -- ");
         run();
-        System.out.print(Brutus.results.toString());
+        System.out.print(hashed.values());
     }
     
     /** TODO: Create a map of Hashes/Word to translate between

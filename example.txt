@@ -1,5 +1,1 @@
-Working with Dan Briotta at the Clifford Ford Observatory, 
-I helped to characterize the rate of dark current production
-in the ST-10XE CCD Camera, while also writing code to help 
-automate the process of capturing and analyzing astronomical
-images for the purpose of doing photometric analysis. 
+Essentially this will be a point-to-point encrypted communication channel, with no persistence of memory (conversations are erased, client locations go unused). If two people have the programs installed it should be as easy as one client entering the project directory and launching the curious.sh script. Then waiting for the other client to do the same. While the connection is alive the conversation history is visible, but when one end breaks the connection everything is erased on both ends.
